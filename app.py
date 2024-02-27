@@ -31,7 +31,8 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     log_init()
-    await create_db_and_tables()
+    # await create_db_and_tables()
+    create_db_and_tables()
 
 
 if __name__ == '__main__':

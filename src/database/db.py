@@ -1,19 +1,21 @@
-from typing import AsyncGenerator
+from typing import Generator
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, Session
 
 from config import config
 from .models import DLModel, DLModelVersion, DLModelDeploy
 from .utils import get_db_uri
 
-DATABASE_URL = get_db_uri(db_name=config.DB_NAME, is_async=True)
+DATABASE_URL = get_db_uri(db_name=config.DB_NAME, is_async=False)
 Base: DeclarativeMeta = declarative_base()
 
-engine = create_async_engine(DATABASE_URL)
+# engine = create_async_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+# async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+session_maker = sessionmaker(engine, expire_on_commit=False)
 
 
 class DLModelInDB(DLModel, Base):
@@ -29,11 +31,18 @@ class DLModelDeployInDB(DLModelDeploy, Base):
     model_version_item = relationship('DLModelVersionInDB', back_populates='model_deploy_item')
 
 
-async def create_db_and_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+def create_db_and_tables():
+    Base.metadata.create_all(engine)
 
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
+# async def create_db_and_tables():
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
+
+
+# async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+#     async with session_maker() as session:
+#         yield session
+def get_session() -> Generator[Session, None, None]:
+    with session_maker() as session:
         yield session

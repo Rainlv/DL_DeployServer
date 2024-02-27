@@ -1,7 +1,9 @@
+from sqlalchemy import URL
+
 from config import config
 
 
-def get_db_uri(db_name: str, is_async: bool = False) -> str:
+def get_db_uri(db_name: str, is_async: bool = False) -> URL:
     """
     配置文件中拼接数据库URI
     :param db_name: 数据库名称
@@ -12,7 +14,18 @@ def get_db_uri(db_name: str, is_async: bool = False) -> str:
     port = config.DB_PORT
     user = config.DB_USER
     passwd = config.DB_PASSWD
-    return f"mysql+pymysql://{user}:{passwd}@{host}:{port}/{db_name}" if not is_async else f"mysql+aiomysql://{user}:{passwd}@{host}:{port}/{db_name}"
+    driver = "mysql+pymysql" if not is_async else "mysql+aiomysql"
+
+    return URL.create(
+        drivername=driver,
+        username=user,
+        password=passwd,
+        host=host,
+        database=db_name,
+        port=port
+    )
+
+    # return f"mysql+pymysql://{user}:{passwd}@{host}:{port}/{db_name}" if not is_async else f"mysql+aiomysql://{user}:{passwd}@{host}:{port}/{db_name}"
 
 
 def orm_to_dict(obj):

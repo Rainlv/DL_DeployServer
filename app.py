@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import config
 from database.db import create_db_and_tables
+from extensions.exceptions import BaseWebException, ExternalServiceException
 from extensions.log import log_init
 
 sys.path.append(str(Path(__file__).parent.absolute() / 'src'))
@@ -21,12 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_exception_handler(BaseWebException, BaseWebException.handler)
+app.add_exception_handler(ExternalServiceException, ExternalServiceException.handler)
 
-# @app.middleware("http")
-# async def db_session_middleware(request: Request, call_next):
-#     request.state.config = config
-#     response = await call_next(request)
-#     return response
 
 @app.on_event("startup")
 async def startup():

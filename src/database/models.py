@@ -46,6 +46,7 @@ class DLModelVersionInDB(BaseDBModel, Base):
     version = Column(String(50), nullable=False, index=True)
     sample_set_id = Column(Integer, nullable=False, index=True)
     deploy_status = Column(Boolean, nullable=False, index=True)
+    train_status = Column(Integer, nullable=False, index=True)
     model_mar_path = Column(String(512), nullable=False)
     description = Column(String(512), nullable=True)
 

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apis.services.mode_version_service import deploy_model_version
 from database.db import get_session
 from database.mapper import DLModelVersionMapper
-from schema.response import DLModelVersionEntityResponse, ResponseFormatter
+from schema.response import DLModelVersionEntityResponse, ResponseFormatter, BaseResponse
 
 router = APIRouter(prefix="/model/version", tags=["模型版本"])
 
@@ -21,7 +21,7 @@ def query_model_version(
     return ResponseFormatter.success(data=data)
 
 
-@router.post("/{version_id}", description="部署模型至工具箱")
+@router.post("/{version_id}", description="部署模型至工具箱", response_model=BaseResponse)
 def deploy_model(
         version_id: int,
         db: AsyncSession = Depends(get_session)
@@ -38,7 +38,7 @@ def deploy_model(
     return ResponseFormatter.error(code=500, message="部署失败")
 
 
-@router.put("/{version_id}", description="编辑模型版本")
+@router.put("/{version_id}", description="编辑模型版本", response_model=BaseResponse)
 def update_model_version(
         version_id: int,
         train_status: int = None,

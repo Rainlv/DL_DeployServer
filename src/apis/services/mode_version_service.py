@@ -6,7 +6,7 @@ from database.models import DLModelVersionInDB
 
 
 def deploy_model_version(obj: DLModelVersionInDB):
-    model_name = obj.model_item.name
+    model_name = obj.model_item.register_name
     mar_path = obj.model_mar_path
     resp = requests.post(f"{config.TORCH_SERVER_URL}/models?url={mar_path}&model_name={model_name}")
     logger.info(

@@ -23,7 +23,7 @@ class BaseDBModel:
     __allow_unmapped__ = True
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)  # 主键
     create_time = Column(DateTime(), server_default=func.now())  # 创建时间
-    user_id = Column(Integer, nullable=False, index=True)  # 创建者
+    user_id = Column(Integer, nullable=False, index=True, default=1)  # 创建者
 
 
 class DLTaskTypeInDB(BaseDBModel, Base):

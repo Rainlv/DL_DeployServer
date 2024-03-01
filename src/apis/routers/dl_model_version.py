@@ -24,6 +24,7 @@ def query_model_version(
 @router.post("/{version_id}", description="部署模型至工具箱", response_model=BaseResponse)
 def deploy_model(
         version_id: int,
+        display_name: str,
         db: AsyncSession = Depends(get_session)
 ):
     model_mapper = DLModelVersionMapper(db)
@@ -33,7 +34,7 @@ def deploy_model(
     if model_version_obj.deploy_status:
         return ResponseFormatter.error(code=400, message="模型版本已部署")
     if deploy_model_version(model_version_obj):
-        model_mapper.deploy(model_version_obj)
+        model_mapper.deploy(model_version_obj, display_name)
         return ResponseFormatter.success(message="部署成功")
     return ResponseFormatter.error(code=500, message="部署失败")
 

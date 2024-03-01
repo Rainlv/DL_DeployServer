@@ -55,8 +55,12 @@ class DLModelVersionMapper(BaseMapper):
     def get_by_id(self, version_id: int) -> DLModelVersionInDB | None:
         return self.session.query(self.db_schema).get(version_id)
 
-    def deploy(self, model_version_obj: DLModelVersionInDB):
+    def deploy(self, model_version_obj: DLModelVersionInDB, display_name: str):
         model_version_obj.deploy_status = True
+        obj = DLModelDeployInDB()
+        obj.version_id = model_version_obj.id
+        obj.display_name = display_name
+        self.session.add(obj)
         self.session.commit()
 
     def edit(self,

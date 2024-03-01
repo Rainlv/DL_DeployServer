@@ -9,10 +9,10 @@ from config import config
 @dataclass
 class DeployInfo:
     serialized_file_path: str
-    model_name: str
     version: str
     handler_path: str
     extra_files: str
+    model_name: str = ""
 
 
 class DeployEngine:
@@ -24,7 +24,7 @@ class DeployEngine:
               --model-name {deploy_info.model_name} \
               --handler {deploy_info.handler_path} \
               --extra-files {deploy_info.extra_files} \
-              --export-path {config.model_store_dir}"
+              --export-path {config.MODEL_STORE_DIR}"
         res = subprocess.run(cmd)
         if res.returncode == 0:
             return True

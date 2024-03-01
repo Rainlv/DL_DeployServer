@@ -4,3 +4,4 @@ loguru
 aiomysql
 pydantic[dotenv]
 uvicorn
+requests

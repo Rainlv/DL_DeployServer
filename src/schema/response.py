@@ -29,5 +29,5 @@ class ResponseFormatter:
         return BaseResponse(code=200, message=message, data=data)
 
     @staticmethod
-    def error(code: int = 500, message: str = "") -> BaseResponse:
-        return BaseResponse(code=code, message=message)
+    def error(code: int = 500, message: str = "", data=None) -> BaseResponse:
+        return BaseResponse(code=code, message=message, data=data)

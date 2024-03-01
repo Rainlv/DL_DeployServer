@@ -52,7 +52,36 @@ class DLModelVersionMapper(BaseMapper):
 
         return self.session.query(self.db_schema).filter(*conditions).all()
 
+    def get_by_id(self, version_id: int) -> DLModelVersionInDB | None:
+        return self.session.query(self.db_schema).get(version_id)
+
+    def deploy(self, model_version_obj: DLModelVersionInDB):
+        model_version_obj.deploy_status = True
+        self.session.commit()
+
+    def edit(self,
+             model_version_obj: DLModelVersionInDB,
+             train_status: int | None,
+             description: str | None,
+             ):
+        if train_status is not None:
+            model_version_obj.train_status = train_status
+        if description:
+            model_version_obj.description = description
+        self.session.commit()
+        return model_version_obj
+
 
 class DLModelDeployMapper(BaseMapper):
     def __init__(self, session):
         super().__init__(session, DLModelDeployInDB)
+
+    def query(self, version_id: int | None):
+        conditions = []
+        if version_id:
+            conditions.append(DLModelDeployInDB.version_id == version_id)
+
+        return self.session.query(self.db_schema).filter(*conditions).all()
+
+    def get_by_version_id(self, version_id: int) -> DLModelDeployInDB | None:
+        return self.session.query(self.db_schema).filter(DLModelDeployInDB.version_id == version_id).one_or_none()

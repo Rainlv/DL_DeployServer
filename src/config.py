@@ -31,6 +31,8 @@ class Config(BaseSettings):
     DB_PASSWD: str
     DB_NAME: str
 
+    TORCH_SERVER_URL: str
+
     SECRET: str
 
     class Config:

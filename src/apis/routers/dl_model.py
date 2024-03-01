@@ -5,10 +5,10 @@ from database.db import get_session
 from database.mapper import DLModelMapper
 from schema.response import DLModelEntityResponse, ResponseFormatter
 
-route = APIRouter(prefix="/model")
+router = APIRouter(prefix="/model", tags=["模型管理"])
 
 
-@route.get("", response_model=DLModelEntityResponse)
+@router.get("", response_model=DLModelEntityResponse)
 async def query_model(
         name: str | None = None,
         task_type_name: str | None = None,

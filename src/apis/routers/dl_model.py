@@ -1,19 +1,19 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from apis.db_crud.dl_model import DLModelMapper
 from database.db import get_session
-from schema.entity import DLModelEntity
+from database.mapper import DLModelMapper
+from schema.response import DLModelEntityResponse, ResponseFormatter
 
 route = APIRouter(prefix="/model")
 
 
-@route.get("", response_model=list[DLModelEntity])
-async def get_model(db: AsyncSession = Depends(get_session)):
+@route.get("", response_model=DLModelEntityResponse)
+async def query_model(
+        name: str | None = None,
+        task_type_name: str | None = None,
+        db: AsyncSession = Depends(get_session)
+):
     model_mapper = DLModelMapper(db)
-    return model_mapper.list()
-
-
-@route.post("")
-async def create_model():
-    pass
+    data = model_mapper.query(name, task_type_name)
+    return ResponseFormatter.success(data=data)

@@ -20,6 +20,7 @@ class TableName(Enum):
 
 
 class BaseDBModel:
+    __allow_unmapped__ = True
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)  # 主键
     create_time = Column(DateTime(), server_default=func.now())  # 创建时间
     user_id = Column(Integer, nullable=False, index=True)  # 创建者
@@ -50,12 +51,12 @@ class DLModelVersionInDB(BaseDBModel, Base):
     model_mar_path = Column(String(512), nullable=False)
     description = Column(String(512), nullable=True)
 
-    model_deploy_item = relationship('DLModelDeployInDB', back_populates='model_version_item')
-    model_item = relationship('DLModelInDB', back_populates='model_version_items')
+    model_deploy_item: "DLModelDeployInDB" = relationship('DLModelDeployInDB', back_populates='model_version_item')
+    model_item: DLModelInDB = relationship('DLModelInDB', back_populates='model_version_items')
 
 
 class DLModelDeployInDB(BaseDBModel, Base):
     __tablename__ = TableName.dl_model_deploy.value
     version_id = Column(Integer, ForeignKey(f'{TableName.dl_model_version.value}.id'), nullable=False, index=True)
     display_name = Column(String(50), nullable=False)
-    model_version_item = relationship('DLModelVersionInDB', back_populates='model_deploy_item')
+    model_version_item: DLModelVersionInDB = relationship('DLModelVersionInDB', back_populates='model_deploy_item')

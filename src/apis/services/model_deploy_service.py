@@ -1,6 +1,9 @@
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path
+
+from loguru import logger
+
+from config import config
 
 
 @dataclass
@@ -13,15 +16,17 @@ class DeployInfo:
 
 
 class DeployEngine:
-    def __init__(self):
-        self.model_store_dir: Path = None
-
-    def deploy(self, deploy_info: DeployInfo):
+    @staticmethod
+    def deploy(deploy_info: DeployInfo):
         cmd = f"torch-model-archiver  \
               -v {deploy_info.version}  \
               --serialized-file {deploy_info.serialized_file_path} \
               --model-name {deploy_info.model_name} \
               --handler {deploy_info.handler_path} \
               --extra-files {deploy_info.extra_files} \
-              --export-path {self.model_store_dir}"
-        subprocess.run(cmd)
+              --export-path {config.model_store_dir}"
+        res = subprocess.run(cmd)
+        if res.returncode == 0:
+            return True
+        logger.error(f"Failed to deploy model: {deploy_info}, details: {res.stdout}")
+        return False

@@ -34,7 +34,7 @@ def deploy_model(
         return ResponseFormatter.error(code=400, message="模型版本已部署")
     if deploy_model_version(model_version_obj):
         model_mapper.deploy(model_version_obj)
-        return ResponseFormatter.success("部署成功")
+        return ResponseFormatter.success(data="部署成功")
     return ResponseFormatter.error(code=500, message="部署失败")
 
 

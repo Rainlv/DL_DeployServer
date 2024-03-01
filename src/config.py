@@ -32,6 +32,7 @@ class Config(BaseSettings):
     DB_NAME: str
 
     TORCH_SERVER_URL: str
+    MODEL_STORE_DIR: str
 
     SECRET: str
 

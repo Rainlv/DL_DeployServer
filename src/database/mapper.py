@@ -65,8 +65,8 @@ class DLModelVersionMapper(BaseMapper):
 
     def edit(self,
              model_version_obj: DLModelVersionInDB,
-             train_status: int | None,
-             description: str | None,
+             train_status: int | None = None,
+             description: str | None = None,
              ):
         if train_status is not None:
             model_version_obj.train_status = train_status

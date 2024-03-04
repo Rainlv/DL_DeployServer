@@ -2,7 +2,7 @@ import uuid
 from tempfile import NamedTemporaryFile
 
 from fastapi import APIRouter, Depends, UploadFile, File, Query, Path
-from fastapi.params import Param, Body
+from fastapi.params import Body
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apis.services.mode_version_service import deploy_model_version, train_model
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/model/version", tags=["模型版本"])
 
 @router.get("", response_model=DLModelVersionEntityResponse, description="查询与筛选模型版本")
 def query_model_version(
-        model_id: int = Query(None, title="模型ID", description="模型ID"),
+        model_id: int = Query(..., title="模型ID", description="模型ID"),
         version: str | None = Query(None, title="模型版本", description="模型版本"),
         deploy_status: bool | None = Query(None, title="部署状态", description="部署状态 true已部署 false未部署"),
         db: AsyncSession = Depends(get_session)
@@ -50,7 +50,8 @@ def deploy_model(
 @router.put("/{version_id}", description="编辑模型版本", response_model=BaseResponse)
 def update_model_version(
         version_id: int = Path(..., title="模型版本ID", description="模型版本ID"),
-        train_status: int = Body(None, title="训练状态", description="训练状态 0训练完成 1未开始 -1训练失败 2准备中 3训练中"),
+        train_status: int = Body(None, title="训练状态",
+                                 description="训练状态 0训练完成 1未开始 -1训练失败 2准备中 3训练中"),
         description: str = Body(None, title="模型版本描述", description="模型版本描述"),
         db: AsyncSession = Depends(get_session)
 ):

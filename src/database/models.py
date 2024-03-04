@@ -46,9 +46,9 @@ class DLModelVersionInDB(BaseDBModel, Base):
     model_id = Column(Integer, ForeignKey(f'{TableName.dl_model.value}.id'), nullable=False, index=True, )
     version = Column(String(50), nullable=False, index=True)
     sample_set_id = Column(Integer, nullable=False, index=True)
-    deploy_status = Column(Boolean, nullable=False, index=True)
-    train_status = Column(Integer, nullable=False, index=True)
-    model_mar_path = Column(String(512), nullable=False)
+    deploy_status = Column(Boolean, nullable=False, index=True, default=False)
+    train_status = Column(Integer, nullable=False, index=True, default=1)
+    model_mar_path = Column(String(1024), nullable=True)
     description = Column(String(512), nullable=True)
 
     model_deploy_item: "DLModelDeployInDB" = relationship('DLModelDeployInDB', back_populates='model_version_item')
@@ -60,3 +60,4 @@ class DLModelDeployInDB(BaseDBModel, Base):
     version_id = Column(Integer, ForeignKey(f'{TableName.dl_model_version.value}.id'), nullable=False, index=True)
     display_name = Column(String(50), nullable=False)
     model_version_item: DLModelVersionInDB = relationship('DLModelVersionInDB', back_populates='model_deploy_item')
+    description = Column(String(512), nullable=True)

@@ -30,3 +30,4 @@ class DLModelVersionEntity(BaseEntity):
 class DLModelDeployEntity(BaseEntity):
     version_id: int
     display_name: str
+    description: None | str

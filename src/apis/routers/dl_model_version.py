@@ -1,7 +1,12 @@
-from fastapi import APIRouter, Depends
+import uuid
+from tempfile import NamedTemporaryFile
+
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apis.services.mode_version_service import deploy_model_version, train_model
+from apis.services.model_deploy_service import DeployEngine, DeployInfo
+from config import config
 from database.db import get_session
 from database.mapper import DLModelVersionMapper
 from schema.request import TrainingArgsModel
@@ -76,16 +81,47 @@ def train_model_api(
     return ResponseFormatter.error(code=501, message="启动训练任务失败")
 
 
-@router.put("/inner/{version_id}/train_done/{training_status}", description="模型训练完成回调",
-            response_model=BaseResponse)
-def __train_done_callback(
+@router.post("/inner/{version_id}/train_done", description="模型训练完成回调",
+             response_model=BaseResponse)
+async def __train_done_callback(
         version_id: int,
-        training_status: int,
+        file: UploadFile = File(...),
         db: AsyncSession = Depends(get_session)
 ):
     model_mapper = DLModelVersionMapper(db)
     model_version_obj = model_mapper.get_by_id(version_id)
     if not model_version_obj:
         return ResponseFormatter.error(code=404, message="模型版本不存在")
-    model_version_obj = model_mapper.edit(model_version_obj, train_status=training_status)
+
+    try:
+        torch_script_file = NamedTemporaryFile(suffix=".torchscript", delete=False)
+        torch_script_file.write(await file.read())
+        model_file_name = uuid.uuid4().hex  # model_name为文件名，不能重复，具体model_name在发布时指定
+        DeployEngine.deploy(DeployInfo(
+            model_name=model_file_name,
+            serialized_file_path=torch_script_file.name,
+            version=model_version_obj.version,
+            handler_path=f"{config.MAR_DEPS_DIR}/handlers/{model_version_obj.model_item.register_name}_handler.py",
+            extra_files=f"{config.MAR_DEPS_DIR}/extra_files",
+        ))
+
+        model_mapper.edit(model_version_obj, train_status=TrainingStatus.SUCCESS.value,
+                          mar_file_path=f"{model_file_name}.mar")
+    except Exception as e:
+        model_mapper.edit(model_version_obj, train_status=TrainingStatus.FAILED.value)
+        return ResponseFormatter.error(code=500, message=f"部署失败: {e}")
+    return ResponseFormatter.success(message="更新成功")
+
+
+@router.post("/inner/{version_id}/train_fail", description="模型训练失败回调",
+             response_model=BaseResponse)
+async def __train_fail_callback(
+        version_id: int,
+        db: AsyncSession = Depends(get_session)
+):
+    model_mapper = DLModelVersionMapper(db)
+    model_version_obj = model_mapper.get_by_id(version_id)
+    if not model_version_obj:
+        return ResponseFormatter.error(code=404, message="模型版本不存在")
+    model_mapper.edit(model_version_obj, train_status=TrainingStatus.FAILED.value)
     return ResponseFormatter.success(message="更新成功")

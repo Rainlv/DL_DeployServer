@@ -66,12 +66,15 @@ class DLModelVersionMapper(BaseMapper):
     def edit(self,
              model_version_obj: DLModelVersionInDB,
              train_status: int | None = None,
+             mar_file_path: str | None = None,
              description: str | None = None,
              ):
         if train_status is not None:
             model_version_obj.train_status = train_status
         if description:
             model_version_obj.description = description
+        if mar_file_path:
+            model_version_obj.model_mar_path = mar_file_path
         self.session.commit()
         return model_version_obj
 

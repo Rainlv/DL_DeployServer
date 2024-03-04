@@ -4,12 +4,12 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+sys.path.append(str(Path(__file__).parent.absolute() / 'src'))
+
 from config import config
 from database.db import create_db_and_tables
 from extensions.exceptions import BaseWebException, ExternalServiceException
 from extensions.log import log_init
-
-sys.path.append(str(Path(__file__).parent.absolute() / 'src'))
 from apis import root_router
 
 app = FastAPI()

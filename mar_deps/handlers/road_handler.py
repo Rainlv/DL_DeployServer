@@ -166,7 +166,7 @@ class RoadHandler(MaskByGeoJsonMixin, GeoJsonResponseHandler):
         return predict_np_resize.astype(np.uint8)
 
 
-# _service = RoadHandler(image_size=512, out_band_num=1)
+_service = RoadHandler(image_size=512, out_band_num=1)
 
 
 def handle(data, context):

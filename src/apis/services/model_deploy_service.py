@@ -25,7 +25,7 @@ class DeployEngine:
               --handler {deploy_info.handler_path} \
               --extra-files {deploy_info.extra_files} \
               --export-path {config.MODEL_STORE_DIR}"
-        res = subprocess.run(cmd)
+        res = subprocess.run(cmd, shell=True)
         if res.returncode == 0:
             return True
         logger.error(f"Failed to deploy model: {deploy_info}, details: {res.stdout}")

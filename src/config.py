@@ -34,6 +34,7 @@ class Config(BaseSettings):
     TORCH_SERVER_URL: str
     TRAIN_SERVER_URL: str
     MODEL_STORE_DIR: str
+    MAR_DEPS_DIR: str
 
     SECRET: str
 

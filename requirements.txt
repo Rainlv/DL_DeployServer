@@ -1,7 +1,9 @@
-fastapi
+fastapi==0.103.0
 sqlalchemy
 loguru
 aiomysql
 pydantic[dotenv]
 uvicorn
 requests
+python-multipart
+torch-model-archiver

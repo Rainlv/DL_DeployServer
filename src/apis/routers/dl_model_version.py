@@ -10,7 +10,7 @@ from apis.services.model_deploy_service import DeployEngine, DeployInfo
 from config import config
 from database.db import get_session
 from database.mapper import DLModelVersionMapper
-from schema.request import TrainingArgsModel
+from schema.request import TrainingArgsModel, CreateVersionRequestModel
 from schema.response import DLModelVersionEntityResponse, ResponseFormatter, BaseResponse
 from utils.constant import TrainingStatus
 
@@ -27,6 +27,21 @@ def query_model_version(
     model_mapper = DLModelVersionMapper(db)
     data = model_mapper.query(model_id, version, deploy_status)
     return ResponseFormatter.success(data=data)
+
+
+@router.post("")
+def create_version(
+        version_obj: CreateVersionRequestModel,
+        db: AsyncSession = Depends(get_session)
+):
+    model_mapper = DLModelVersionMapper(db)
+    model_version_obj = model_mapper.create(
+        model_id=version_obj.model_id,
+        sample_set_id=version_obj.sample_set_id,
+        description=version_obj.description,
+        version=version_obj.version
+    )
+    return ResponseFormatter.success(data=model_version_obj)
 
 
 @router.post("/{version_id}", description="部署模型至工具箱", response_model=BaseResponse)

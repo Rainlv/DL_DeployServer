@@ -30,6 +30,8 @@ class DLTaskTypeInDB(BaseDBModel, Base):
     __tablename__ = TableName.dl_task_type.value
     name = Column(String(50), nullable=False, index=True, unique=True)
 
+    model_items = relationship('DLModelInDB', back_populates='task_type_item')
+
 
 class DLModelInDB(BaseDBModel, Base):
     __tablename__ = TableName.dl_model.value
@@ -39,6 +41,7 @@ class DLModelInDB(BaseDBModel, Base):
     task_type_id = Column(Integer, ForeignKey(f'{TableName.dl_task_type.value}.id'), nullable=False, index=True, )
 
     model_version_items = relationship('DLModelVersionInDB', back_populates='model_item')
+    task_type_item = relationship('DLTaskTypeInDB', back_populates='model_items')
 
 
 class DLModelVersionInDB(BaseDBModel, Base):

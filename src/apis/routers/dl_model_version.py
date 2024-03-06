@@ -17,7 +17,9 @@ from utils.constant import TrainingStatus
 router = APIRouter(prefix="/model/version", tags=["模型版本"])
 
 
-@router.get("", response_model=DLModelVersionEntityResponse, description="查询与筛选模型版本")
+@router.get("",
+            response_model=DLModelVersionEntityResponse,
+            description="查询与筛选模型版本")
 def query_model_version(
         model_id: int = Query(..., title="模型ID", description="模型ID"),
         version: str | None = Query(None, title="模型版本", description="模型版本"),

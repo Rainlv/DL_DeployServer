@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BaseEntity(BaseModel):
@@ -12,10 +12,14 @@ class BaseEntity(BaseModel):
         orm_mode = True
 
 
+class DLTaskTypeEntity(BaseEntity):
+    name: str
+
+
 class DLModelEntity(BaseEntity):
     name: str
     description: None | str
-    task_type_id: int
+    task_type_item: DLTaskTypeEntity = Field(..., alias="task_type_item", title="任务类型信息", )
 
 
 class DLModelVersionEntity(BaseEntity):
@@ -23,7 +27,7 @@ class DLModelVersionEntity(BaseEntity):
     version: str
     sample_set_id: int
     deploy_status: bool
-    model_mar_path: str
+    model_mar_path: str | None
     description: None | str
 
 

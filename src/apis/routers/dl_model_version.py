@@ -31,7 +31,7 @@ def query_model_version(
     return ResponseFormatter.success(data=data)
 
 
-@router.post("")
+@router.post("", response_model=DLModelVersionEntityResponse, description="创建模型版本")
 def create_version(
         version_obj: CreateVersionRequestModel,
         db: AsyncSession = Depends(get_session)

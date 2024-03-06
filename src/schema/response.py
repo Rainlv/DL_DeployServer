@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 
 from pydantic import BaseModel
 
@@ -28,7 +28,7 @@ class ResponseFormatter:
     def success(data=None, message: str = "") -> BaseResponse:
         if data is None:
             data = []
-        if data is not isinstance(data, list):
+        if not isinstance(data, Iterable):
             data = [data]
         return BaseResponse(code=200, message=message, data=data)
 

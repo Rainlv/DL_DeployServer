@@ -93,6 +93,14 @@ class DLModelVersionMapper(BaseMapper):
         self.session.commit()
         return model_version_obj
 
+    def delete(self, version_id: int):
+        version_obj = self.get_by_id(version_id)
+        if version_obj:
+            self.session.delete(version_obj)
+            self.session.commit()
+            return True
+        return False
+
 
 class DLModelDeployMapper(BaseMapper):
     def __init__(self, session):

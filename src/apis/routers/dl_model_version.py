@@ -100,6 +100,18 @@ def train_model_api(
     return ResponseFormatter.error(code=501, message="启动训练任务失败")
 
 
+@router.delete("/{version_id}", description="删除模型版本", response_model=BaseResponse)
+def delete_model_version(
+        version_id: int = Path(..., title="模型版本ID", description="模型版本ID"),
+        db: AsyncSession = Depends(get_session)
+):
+    model_mapper = DLModelVersionMapper(db)
+    if model_mapper.delete(version_id):
+        return ResponseFormatter.success(message="删除成功")
+    else:
+        return ResponseFormatter.error(code=404, message="模型版本不存在")
+
+
 @router.post("/inner/{version_id}/train_done", description="内部接口，模型训练完成回调",
              response_model=BaseResponse)
 async def __train_done_callback(

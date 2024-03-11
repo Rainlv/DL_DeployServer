@@ -27,6 +27,7 @@ class DLModelVersionEntity(BaseEntity):
     version: str
     sample_set_id: int
     deploy_status: bool
+    train_status: int
     model_mar_path: str | None
     description: None | str
 

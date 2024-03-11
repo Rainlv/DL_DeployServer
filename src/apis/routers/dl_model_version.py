@@ -10,7 +10,7 @@ from apis.services.model_deploy_service import DeployEngine, DeployInfo
 from config import config
 from database.db import get_session
 from database.mapper import DLModelVersionMapper
-from schema.request import TrainingArgsModel, CreateVersionRequestModel
+from schema.request import TrainingArgsModel, CreateVersionRequestModel, CreateDeployRequestModel
 from schema.response import DLModelVersionEntityResponse, ResponseFormatter, BaseResponse
 from utils.constant import TrainingStatus
 
@@ -49,7 +49,7 @@ def create_version(
 @router.post("/{version_id}", description="部署模型至工具箱", response_model=BaseResponse)
 def deploy_model(
         version_id: int = Path(..., title="模型版本ID", description="模型版本ID"),
-        display_name: str = Body(..., title="工具箱显示名称", description="工具箱显示名称"),
+        display_name: CreateDeployRequestModel = Body(..., title="工具箱显示名称", description="工具箱显示名称"),
         db: AsyncSession = Depends(get_session)
 ):
     model_mapper = DLModelVersionMapper(db)
@@ -59,7 +59,7 @@ def deploy_model(
     if model_version_obj.deploy_status:
         return ResponseFormatter.error(code=400, message="模型版本已部署")
     if deploy_model_version(model_version_obj):
-        model_mapper.deploy(model_version_obj, display_name)
+        model_mapper.deploy(model_version_obj, display_name.display_name)
         return ResponseFormatter.success(message="部署成功")
     return ResponseFormatter.error(code=500, message="部署失败")
 

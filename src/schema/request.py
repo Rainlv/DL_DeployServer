@@ -12,3 +12,7 @@ class CreateVersionRequestModel(BaseModel):
     version: str
     sample_set_id: int
     description: None | str
+
+
+class CreateDeployRequestModel(BaseModel):
+    display_name: str

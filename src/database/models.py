@@ -39,6 +39,7 @@ class DLModelInDB(BaseDBModel, Base):
     register_name = Column(String(50), nullable=False, index=True, unique=True)
     description = Column(String(255), nullable=True, index=True)
     task_type_id = Column(Integer, ForeignKey(f'{TableName.dl_task_type.value}.id'), nullable=False, index=True, )
+    icon = Column(String(2048), nullable=True)
 
     model_version_items = relationship('DLModelVersionInDB', back_populates='model_item')
     task_type_item = relationship('DLTaskTypeInDB', back_populates='model_items')

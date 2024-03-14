@@ -19,6 +19,7 @@ class DLTaskTypeEntity(BaseEntity):
 class DLModelEntity(BaseEntity):
     name: str = Field(..., title="模型名称", description="模型名称")
     description: None | str = Field(None, title="模型描述", description="模型描述")
+    icon: str | None = Field(None, title="图标链接", description="图标文件访问链接")
     task_type_item: DLTaskTypeEntity = Field(..., alias="task_type_item", title="任务类型信息", )
 
 

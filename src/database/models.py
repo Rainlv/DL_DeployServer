@@ -5,7 +5,7 @@ from sqlalchemy import (
     Integer,
     String,
     DateTime,
-    func, Boolean, ForeignKey
+    func, Boolean, ForeignKey, Float
 )
 from sqlalchemy.orm import DeclarativeMeta, declarative_base, relationship
 
@@ -53,6 +53,9 @@ class DLModelVersionInDB(BaseDBModel, Base):
     train_status = Column(Integer, nullable=False, index=True, default=1)
     model_mar_path = Column(String(1024), nullable=True)
     description = Column(String(512), nullable=True)
+    lr = Column(Float, nullable=True)
+    batch_size = Column(Integer, nullable=True)
+    epoch_num = Column(Integer, nullable=True)
 
     model_deploy_item: "DLModelDeployInDB" = relationship('DLModelDeployInDB', back_populates='model_version_item')
     model_item: DLModelInDB = relationship('DLModelInDB', back_populates='model_version_items')

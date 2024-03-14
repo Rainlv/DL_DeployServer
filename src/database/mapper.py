@@ -34,6 +34,9 @@ class DLModelMapper(BaseMapper):
 
         return self.session.query(self.db_schema).filter(*conditions).all()
 
+    def get_by_id(self, model_id: int) -> DLModelInDB | None:
+        return self.session.query(self.db_schema).get(model_id)
+
 
 class DLModelVersionMapper(BaseMapper):
     def __init__(self, session):
@@ -59,13 +62,19 @@ class DLModelVersionMapper(BaseMapper):
                model_id: int,
                sample_set_id: int,
                description: None | str,
-               version: str
+               version: str,
+               lr: float,
+               batch_size: int,
+               epoch_num: int
                ):
         version_obj = DLModelVersionInDB()
         version_obj.version = version
         version_obj.model_id = model_id
         version_obj.sample_set_id = sample_set_id
         version_obj.description = description
+        version_obj.lr = lr
+        version_obj.batch_size = batch_size
+        version_obj.epoch_num = epoch_num
         self.session.add(version_obj)
         self.session.commit()
         return version_obj
@@ -83,6 +92,9 @@ class DLModelVersionMapper(BaseMapper):
              train_status: int | None = None,
              mar_file_path: str | None = None,
              description: str | None = None,
+             lr: float | None = None,
+             batch_size: int | None = None,
+             epoch_num: int | None = None
              ):
         if train_status is not None:
             model_version_obj.train_status = train_status
@@ -90,6 +102,12 @@ class DLModelVersionMapper(BaseMapper):
             model_version_obj.description = description
         if mar_file_path:
             model_version_obj.model_mar_path = mar_file_path
+        if lr:
+            model_version_obj.lr = lr
+        if batch_size:
+            model_version_obj.batch_size = batch_size
+        if epoch_num:
+            model_version_obj.epoch_num = epoch_num
         self.session.commit()
         return model_version_obj
 

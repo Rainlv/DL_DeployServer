@@ -9,7 +9,7 @@ from apis.services.mode_version_service import deploy_model_version, train_model
 from apis.services.model_deploy_service import DeployEngine, DeployInfo
 from config import config
 from database.db import get_session
-from database.mapper import DLModelVersionMapper
+from database.mapper import DLModelVersionMapper, DLModelMapper
 from schema.request import TrainingArgsModel, CreateVersionRequestModel, CreateDeployRequestModel
 from schema.response import DLModelVersionEntityResponse, ResponseFormatter, BaseResponse
 from utils.constant import TrainingStatus
@@ -36,12 +36,19 @@ def create_version(
         version_obj: CreateVersionRequestModel,
         db: AsyncSession = Depends(get_session)
 ):
-    model_mapper = DLModelVersionMapper(db)
-    model_version_obj = model_mapper.create(
+    model_version_mapper = DLModelVersionMapper(db)
+    model_mapper = DLModelMapper(db)
+    if not model_mapper.get_by_id(version_obj.model_id):
+        return ResponseFormatter.error(code=404, message="模型不存在")
+
+    model_version_obj = model_version_mapper.create(
         model_id=version_obj.model_id,
         sample_set_id=version_obj.sample_set_id,
         description=version_obj.description,
-        version=version_obj.version
+        version=version_obj.version,
+        lr=version_obj.lr,
+        batch_size=version_obj.batch_size,
+        epoch_num=version_obj.epoch_num
     )
     return ResponseFormatter.success(data=model_version_obj)
 
@@ -70,20 +77,22 @@ def update_model_version(
         train_status: int = Body(None, title="训练状态",
                                  description="训练状态 0训练完成 1未开始 -1训练失败 2准备中 3训练中"),
         description: str = Body(None, title="模型版本描述", description="模型版本描述"),
+        lr: float = Body(None, title="学习率", description="模型训练学习率"),
+        batch_size: int = Body(None, title="批次大小", description="模型训练批次大小"),
+        epoch_num: int = Body(None, title="训练轮次", description="模型训练轮次"),
         db: AsyncSession = Depends(get_session)
 ):
     model_mapper = DLModelVersionMapper(db)
     model_version_obj = model_mapper.get_by_id(version_id)
     if not model_version_obj:
         return ResponseFormatter.error(code=404, message="模型版本不存在")
-    model_version_obj = model_mapper.edit(model_version_obj, train_status, description)
+    model_version_obj = model_mapper.edit(model_version_obj, train_status, description, lr, batch_size, epoch_num)
     return ResponseFormatter.success(message="更新成功")
 
 
 @router.put("/{version_id}/train", description="启动训练模型", response_model=BaseResponse)
 def train_model_api(
         version_id: int = Path(..., title="模型版本ID", description="模型版本ID"),
-        training_arg: TrainingArgsModel = Body(..., title="训练参数", description="训练参数"),
         db: AsyncSession = Depends(get_session)
 ):
     model_mapper = DLModelVersionMapper(db)
@@ -94,7 +103,11 @@ def train_model_api(
         return ResponseFormatter.error(code=400, message="模型训练中")
     elif model_version_obj.train_status == TrainingStatus.SUCCESS.value:
         return ResponseFormatter.error(code=400, message="模型训练已完成")
-    if train_model(model_version_obj, training_arg):
+    training_args = TrainingArgsModel(
+        lr=model_version_obj.lr,
+        batch_size=model_version_obj.batch_size,
+        epoch_num=model_version_obj.epoch_num)
+    if train_model(model_version_obj, training_args):
         model_mapper.edit(model_version_obj, train_status=TrainingStatus.TRAINING.value)
         return ResponseFormatter.success(message="启动训练任务成功")
     return ResponseFormatter.error(code=501, message="启动训练任务失败")

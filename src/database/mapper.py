@@ -31,7 +31,8 @@ class DLModelMapper(BaseMapper):
                 DLTaskTypeInDB.name == task_type_name).one_or_none()
             if task_type_obj:
                 conditions.append(DLModelInDB.task_type_id == task_type_obj.id)
-
+            else:
+                return []
         return self.session.query(self.db_schema).filter(*conditions).all()
 
     def get_by_id(self, model_id: int) -> DLModelInDB | None:

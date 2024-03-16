@@ -2,6 +2,7 @@ from typing import List, Iterable
 
 from pydantic import BaseModel
 
+from database.models import DLModelDeployInDB
 from schema.entity import DLModelEntity, DLModelVersionEntity, DLModelDeployEntity
 
 
@@ -19,8 +20,26 @@ class DLModelVersionEntityResponse(BaseResponse):
     data: List[DLModelVersionEntity] = []
 
 
+class DLModelDeployResponseItem(DLModelDeployEntity):
+    model_name: str
+    version: str
+
+    @staticmethod
+    def from_db_model(model: DLModelDeployInDB):
+        return DLModelDeployResponseItem(
+            id=model.id,
+            create_time=model.create_time,
+            user_id=model.user_id,
+            version_id=model.version_id,
+            display_name=model.display_name,
+            description=model.description,
+            model_name=model.model_version_item.model_item.register_name,
+            version=model.model_version_item.version
+        )
+
+
 class DLModelDeployEntityResponse(BaseResponse):
-    data: List[DLModelDeployEntity] = []
+    data: List[DLModelDeployResponseItem] = []
 
 
 class ResponseFormatter:

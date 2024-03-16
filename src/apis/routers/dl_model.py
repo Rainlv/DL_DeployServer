@@ -10,8 +10,8 @@ router = APIRouter(prefix="/model", tags=["模型管理"])
 
 @router.get("", response_model=DLModelEntityResponse, description="查询与筛选模型")
 async def query_model(
-        name: str | None = Query(None, title="模型名称", description="模型名称", min_length=1, max_length=100),
-        task_type_name: str | None = Query(None, title="任务类型名称", description="任务类型名称", min_length=1,
+        name: str | None = Query(None, title="模型名称", description="模型名称", max_length=100),
+        task_type_name: str | None = Query(None, title="任务类型名称", description="任务类型名称",
                                            max_length=100),
         db: AsyncSession = Depends(get_session)
 ):

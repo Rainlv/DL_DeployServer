@@ -80,6 +80,7 @@ class CommonS3Handler(BaseHandler):
             final_output = self._post_process_one_image(ctx).astype(np.uint8)
             ctx.out_ds.WriteArray(final_output, ctx.x_off, ctx.y_off, band_list=range(1, self.out_band_num + 1))
         final_ds = self._get_output_gdal_dataset(ctx_)
+        self._before_return_hook(ctx_, final_ds)
         resp = self._format_response(final_ds)
         self.clean(ctx_)
         return resp
@@ -91,6 +92,9 @@ class CommonS3Handler(BaseHandler):
             # 存在region说明裁切过，删除裁切生成的文件
             drv_in: Driver = ctx.in_ds.GetDriver()
             drv_in.Delete(ctx.in_ds.GetDescription())
+
+    def _before_return_hook(self, ctx: InferenceContext, final_ds: Dataset):
+        pass
 
     def _gdal2pillow(self, gdal_arr: np.array) -> np.array:
         """Convert GDAL array to Pillow image"""

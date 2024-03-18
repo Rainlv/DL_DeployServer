@@ -20,7 +20,7 @@ from torch.nn.parallel.data_parallel import DataParallel
 from ts.torch_handler.base_handler import logger
 
 from data_types import InferenceContext
-from handlers.geojson_response_handler import GeoJsonResponseHandler
+from handlers.pg_response_handler import PosrgreSQLResponseHandler
 from mixins.preprocess_mixin.mask_mixin import MaskByGeoJsonMixin
 
 try:
@@ -682,7 +682,7 @@ def convert_model(module):
     return mod
 
 
-class BuildingHandler(MaskByGeoJsonMixin, GeoJsonResponseHandler):
+class BuildingHandler(MaskByGeoJsonMixin, PosrgreSQLResponseHandler):
     def __init__(self, out_band_num=3, image_size=512, driver="PNG", ):
         super().__init__(out_band_num=out_band_num, image_size=image_size, driver=driver)
         self.res, self.mean, self.std, self.shuffix_tif, self.shuffix_label = mean_std_dict["WHU_Mix_vec"]
@@ -735,7 +735,7 @@ def handle(data, context):
         data = _service.inference(data)
         data = _service.postprocess(data)
 
-        name = data['s3'].split("/")[-1]
+        name = data['data']
 
         _service.notifier_client.success(name, req.task_id, name)
         logger.info(f"Successfully processed the request: {req}")
@@ -762,7 +762,8 @@ if __name__ == '__main__':
 
     handler = BuildingHandler(image_size=512, out_band_num=1)
     handler.init4test(
-        model_path="/home/i/PycharmProjects/torch_handlers/examples/model_files/building/model_best_c.torchscript", gpu=False)
+        model_path="/home/i/PycharmProjects/torch_handlers/examples/model_files/building/model_best_c.torchscript",
+        gpu=False)
     req = handler.parse_request(req)
     try:
         data = handler.preprocess(req)

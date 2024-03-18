@@ -3,13 +3,13 @@ import os
 import cv2
 import numpy as np
 import torch
+from loguru import logger
 from skimage import transform, color
 from torch.autograd import Variable
 from torchvision import transforms
-from ts.torch_handler.base_handler import logger
 
 from data_types import Arr, InferenceContext
-from handlers.geojson_response_handler import GeoJsonResponseHandler
+from handlers.pg_response_handler import PosrgreSQLResponseHandler
 from mixins.preprocess_mixin.mask_mixin import MaskByGeoJsonMixin
 
 
@@ -132,7 +132,7 @@ def normPRED(d):
     return dn
 
 
-class RoadHandler(MaskByGeoJsonMixin, GeoJsonResponseHandler):
+class RoadHandler(MaskByGeoJsonMixin, PosrgreSQLResponseHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.transforms = transforms.Compose([RescaleT(256), ToTensorLab(flag=0)])
@@ -181,7 +181,7 @@ def handle(data, context):
         data = _service.inference(data)
         data = _service.postprocess(data)
 
-        name = data['s3'].split("/")[-1]
+        name = data['data']
 
         _service.notifier_client.success(name, req.task_id, name)
         logger.info(f"Successfully processed the request: {req}")
@@ -196,6 +196,16 @@ if __name__ == '__main__':
     os.environ["MINIO_ACCESS_KEY"] = "root"
     os.environ["MINIO_SECRET_KEY"] = "admin@123"
     os.environ["MINIO_ENDPOINT"] = "localhost:9000"
+    os.environ["PG_DB"] = "postgres"
+    os.environ["PG_USER"] = "postgres"
+    os.environ["PG_PASSWORD"] = "123456"
+    os.environ["PG_HOST"] = "localhost"
+    os.environ["PG_PORT"] = "5432"
+    os.environ["GEOSERVER_URL"] = "http://localhost:11080/geoserver"
+    os.environ["GEOSERVER_USER"] = "admin"
+    os.environ["GEOSERVER_PASSWORD"] = "geoserver"
+    os.environ["GEOSERVER_WS"] = "ne"
+    os.environ["GEOSERVER_STORE"] = "pg"
 
     req = [{
         "body":
@@ -240,9 +250,7 @@ if __name__ == '__main__':
         data = handler.preprocess(req)
         data = handler.inference(data)
         data = handler.postprocess(data)
-        name = data['s3'].split("/")[-1]
-        # handler.notifier_client.success(name, req.task_id, name)
+        name = data['data'].split("/")[-1]
+        print(name)
     except Exception as e:
-        # handler.notifier_client.failure(req.task_id)
-        pass
-    print(data)
+        print(e)

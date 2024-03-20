@@ -683,6 +683,9 @@ def convert_model(module):
 
 
 class BuildingHandler(MaskByGeoJsonMixin, PosrgreSQLResponseHandler):
+    style_name = "building"
+    bg_pixel_value = 0
+
     def __init__(self, out_band_num=3, image_size=512, driver="PNG", ):
         super().__init__(out_band_num=out_band_num, image_size=image_size, driver=driver)
         self.res, self.mean, self.std, self.shuffix_tif, self.shuffix_label = mean_std_dict["WHU_Mix_vec"]

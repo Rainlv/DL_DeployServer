@@ -25,7 +25,7 @@ class DLModelMapper(BaseMapper):
         conditions = []
         if name:
             # FIXME 模糊查询
-            conditions.append(DLModelInDB.name == name)
+            conditions.append(DLModelInDB.name.like(name + "%"))
         if task_type_name:
             task_type_obj = self.session.query(DLTaskTypeInDB).filter(
                 DLTaskTypeInDB.name == task_type_name).one_or_none()
